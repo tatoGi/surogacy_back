@@ -7,15 +7,17 @@
 <div class="row">
     <div class="col-12">
         <div class="card-box">
-           
+
             <div style="display: flex; align-items:center; justify-content: space-between; padding:20px 0">
                 <h4 class="mt-0 header-title float-left">{{ trans('admin.banners') }}</h4>
-              
-                @if($type['id'] == 2 && count($banners) >= 2)
-                <a href="{{ route('banner.create', [app()->getLocale(), $type['id']]) }}" type="button" class="float-right btn btn-info waves-effect width-md waves-light none">{{ trans('admin.add_banner') }}</a>
-            @else
-                <a href="{{ route('banner.create', [app()->getLocale(), $type['id']]) }}" type="button" class="float-right btn btn-info waves-effect width-md waves-light">{{ trans('admin.add_banner') }}</a>
-            @endif
+
+                @if($type['id'] == 1 && count($banners) >= 1)
+                    <a href="{{ route('banner.create', [app()->getLocale(), $type['id']]) }}" type="button" class="float-right btn btn-info waves-effect width-md waves-light none">{{ trans('admin.add_banner') }}</a>
+                @elseif($type['id'] == 2 && count($banners) >= 2)
+                    <a href="{{ route('banner.create', [app()->getLocale(), $type['id']]) }}" type="button" class="float-right btn btn-info waves-effect width-md waves-light none">{{ trans('admin.add_banner') }}</a>
+                @else
+                    <a href="{{ route('banner.create', [app()->getLocale(), $type['id']]) }}" type="button" class="float-right btn btn-info waves-effect width-md waves-light">{{ trans('admin.add_banner') }}</a>
+                @endif
             </div>
 
             <div class="container-fluid">
@@ -63,7 +65,7 @@
     .none{
         display: none;
     }
-</style>   
+</style>
 @endpush
 
 

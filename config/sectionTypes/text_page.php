@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'id' => 4,
-    'type' => 4,
+    'id' => 3,
+    'type' => 3,
     'folder' => 'text_page',
     'fields' => [
         'trans' => [
@@ -44,7 +44,7 @@ return [
             ],
         ],
         'nonTrans' => [
-           
+
             'images' => [
                 'type' => 'images',
             ],

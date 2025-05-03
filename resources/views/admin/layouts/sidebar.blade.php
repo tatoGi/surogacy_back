@@ -25,7 +25,7 @@
             </div>
             <p class="text-muted">{{ trans('admin.'.auth()->user()->type ) }}</p>
             <ul class="list-inline">
-            
+
 
                 <li class="list-inline-item">
                     <a href="{{ route('logout', app()->getLocale()) }}" class="text-custom">
@@ -45,7 +45,7 @@
                         <i class="mdi mdi-view-dashboard"></i>
                         <span> {{ trans('admin.dashboard') }} </span>
                     </a>
-                    
+
                 </li> --}}
                 <li class="menu-title">{{ trans('admin.website') }}</li>
                 <li>
@@ -53,10 +53,35 @@
                         <i class="mdi  noti-icon {{ count($notifications) > 0 ? 'mdi-email pos-rel' : 'mdi-email-open'  }}">
                             @if (count($notifications) > 0 )
                             <span class="badge badge-danger rounded-circle noti-icon-badge sidebar-badge">{{ count($notifications) }}</span>
-                     
+
                             @endif
                         </i>
                         <span > {{ trans('admin.submissions') }} </span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/{{ app()->getLocale() }}/admin/form-submissions">
+                        <i class="mdi mdi-file-document-outline"></i>
+                        <span> {{ trans('admin.form_submissions') }} </span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/{{ app()->getLocale() }}/admin/companies">
+                        <i class="mdi mdi-office-building"></i>
+                        <span> {{ trans('admin.companies') }} </span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/{{ app()->getLocale() }}/admin/favorites" class="nav-link {{ request()->routeIs('admin.favorites.*') ? 'active' : '' }} d-flex align-items-center">
+                        <i class="nav-icon fas fa-star"></i>
+                        <p>{{ __('admin.Favorites') }}</p>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/{{ app()->getLocale() }}/admin/surrogations">
+                        <i class="mdi mdi-account-group"></i>
+                        <span> {{ trans('admin.surrogations') }} </span>
                     </a>
                 </li>
                 {{-- <li>
@@ -71,17 +96,17 @@
                         <span> {{ trans('admin.sections') }} </span>
                     </a>
                 </li>
-{{--             
+{{--
                 <li>
-                    
+
                     @foreach (bannerTypesOrdered() as $key => $bannerType)
                     <a href="{{ route('banner.list', [app()->getLocale(), $bannerType['id']]) }}">
-                        
+
                         <i class="mdi mdi-view-dashboard"></i>
                         {{ trans('bannerTypes.'.$bannerType['name']) }}</a>
                     @endforeach
                 </li> --}}
-                       
+
 
                 <li>
                     <a href="javascript: void(0);">
@@ -93,10 +118,10 @@
                         @foreach (bannerTypesOrdered() as $key => $bannerType)
                         <li><a href="{{ route('banner.list', [app()->getLocale(), $bannerType['id']]) }}">{{ trans('bannerTypes.'.$bannerType['name']) }}</a></li>
                         @endforeach
-                        
+
                     </ul>
                 </li>
-				 
+
 
                 @if (auth()->user()->isType('admin'))
 					@if (!empty(directoryTypes()))
@@ -111,7 +136,7 @@
 								@foreach (directoryTypes() as $key => $directoryType)
 								<li><a href="{{ route('directory.list', [app()->getLocale(), $key]) }}">{{ trans('directoryTypes.'.$directoryType) }}</a></li>
 								@endforeach
-								
+
 							</ul>
 						</li>
 					@endif
@@ -127,7 +152,7 @@
                         <span> {{ trans('admin.settings') }} </span>
                     </a>
                 </li>
-                
+
                 @endif
 
                 @if (auth()->user()->isType('superuser'))
@@ -139,8 +164,8 @@
                         <span> {{ trans('admin.admin') }} </span>
                     </a>
                 </li>
-                
-                {{-- 
+
+                {{--
 
                 <li>
                     <a href="/{{ app()->getLocale() }}/admin/mailers">
@@ -148,7 +173,7 @@
                         <span> {{ trans('admin.mailers') }} </span>
                     </a>
                 </li> --}}
-{{-- 
+{{--
                 <li>
                     <a href="/{{ app()->getLocale() }}/attandance">
                         <i class="dripicons-user"></i>
@@ -164,9 +189,9 @@
                 </li> --}}
 
                 @endif
-                
+
             </ul>
-           
+
         </div>
         <!-- End Sidebar -->
 

@@ -10,7 +10,7 @@
 
 $(function () {
     'use strict';
-  
+
     // form repeater jquery
     $('.invoice-repeater, .repeater-default').repeater({
       show: function () {
@@ -20,6 +20,9 @@ $(function () {
         if (confirm('Are you sure you want to delete this element?')) {
           $(this).slideUp(deleteElement);
         }
+      },
+      ready: function () {
+        // Initialize any additional functionality here
       }
     });
   });

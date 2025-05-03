@@ -58,6 +58,7 @@ class Kernel extends HttpKernel
         'isSuperuser' => \App\Http\Middleware\Superuser::class,
         'isAdmin' => \App\Http\Middleware\Admin::class,
         'isManager' => \App\Http\Middleware\Manager::class,
+        'company' => \App\Http\Middleware\CompanyMiddleware::class,
         'locale' => \App\Http\Middleware\Locale::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,

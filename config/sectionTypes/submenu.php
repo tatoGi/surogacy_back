@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'id' => 5,
-    'type' => 5,
+    'id' => 4,
+    'type' => 4,
     'folder' => 'submenu',
     'paginate' => 16,
 

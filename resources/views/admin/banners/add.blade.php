@@ -8,20 +8,32 @@
 <div class="row">
     <div class="col-xl-12">
         <div class="card-box">
-
-
-
             @if (session('error'))
-            <div class="alert alert-danger" role="alert">
-                {{ session('error') }}
-            </div>
-        @endif
+                <div class="alert alert-danger" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div class="alert alert-success" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <h4 class="header-title mt-0 mb-3">{{ trans('admin.add_banner') }}</h4>
             {!! Form::open(['route' => ['banner.store', app()->getLocale(), $type['id']], "enctype" => "multipart/form-data"]) !!}
                 @include('admin.banners.form')
             {!! Form::close() !!}
-
         </div>
     </div>
 </div>
@@ -64,7 +76,7 @@
        const locale = $input.data('locale');
        const slug = $input.val();
        var token = $('meta[name="csrf-token"]').attr('content');
-       
+
        $.ajax({
            type: 'POST',
            url:("/{{ app()->getLocale() }}/admin/check-slug-banner"),
@@ -72,9 +84,9 @@
            success: function(data) {
                console.log('ok')
                $input.parent().find('.print-error-msg').html('').css('color', '');
-               const btn = $('#banner-button'); 
+               const btn = $('#banner-button');
                btn.css('pointer-events', 'initial');
-               
+
            },
            error: function(data) {
                console.log(data)
@@ -99,10 +111,10 @@
     <script src="https://cdn.jsdelivr.net/npm/parsleyjs@2.9.3/dist/parsley.min.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
      <!-- Validation js (Parsleyjs) -->
      <script src="{{ asset('admin/libs/parsleyjs/parsley.min.js') }}"></script>
-    
+
      <!-- validation init -->
      <script src="{{ asset('admin/js/pages/form-validation.init.js') }}"></script>
     <!-- Plugins Js -->

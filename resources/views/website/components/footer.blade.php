@@ -1,80 +1,35 @@
-<footer id="footer">
-    <div class="footer_inner no_fill footer-light ext_view">
-        <div class="bottom_wrapper">
-            <div class="wrapper_inner">
-                <div class="row bottom-middle">
-                    <div class="col-md-7">
-                        <div class="row">
-                            @foreach($footerSections as $fsection)
-                            <div class="col-md-4 col-sm-4">
-                                <div class="bottom-menu">
-                                    <div class="items">
-                                        <div class="item-link">
-                                            <div class="item">
-                                                <div class="title">
-                                                    <span>{{ $fsection->translate(app()->getlocale())->title }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="wrap">
-                                            @foreach($fsection->children as $children)
-                                            <div class="item-link">
-                                                <div class="item">
-                                                    <div class="title">
-                                                        <a href="/{{ $children->getFullSlug() ?? '' }}">
-                                                            {{ $children->translate(app()->getlocale())->title }} </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            @endforeach
-                                          
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                           
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-12 col-sm-4 col-sm-offset-2">
-                        <div class="info contacts_block_footer">
-                        <span class="white_middle_text">
-                                                                            კონტაქტი                                                </span>
-                     
-                        <div class="email blocks">
-                        <a href="#"><span class="__cf_email__">info@ideal.ge</span></a>
-                        </div>
-                        <div class="address blocks">
-                        <b>თბილისი:</b> დ. აღმაშენებლის ხეივანი N71<br>
-                        <b>ბათუმი:</b> ქ.ბათუმი. ლეონიძის ქ.N7												</div>
-                        </div>
-                        </div>
-                </div>
-                <div class="bottom-under">
-                    <div class="row">
-                        <div class="col-md-12 outer-wrapper">
-                            <div class="inner-wrapper row">
-                                <div class="copy-block">
-                                    <div class="copy">
-                                        © Copyright. All rights reserved.
-                                    </div>
-                                    <!--<div class="blocks">
-                                                    <a href="/ka/შეთანხმების-პირობები">
-                                                        შეთანხმების პირობები
-                                                    </a>
-                                                </div>
-                                                <div class="blocks">
-                                                    <a href="/ka/კონფიდენციალურობის-პოლიტიკა">
-                                                        კონფიდენციალურობის პოლიტიკა
-                                                    </a>
-                                                </div>-->
-                                </div>
-                            </div>
-                        </div>
-                     
-                    </div>
-                </div>
+<!-- Footer Section -->
+<footer class="footer fade-in">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 text-center">
+                <img src="{{ settings('header_logo')['url'] ?? '' }}" alt="Surrogate First Logo" class="img-fluid" style="height: 80px;">
+                <p class="footer-tagline">Helping families one blessing at a time.</p>
             </div>
+            @foreach($footerSections as $section)
+            <div class="col-md-3">
+                <h5>{{ $section->translate(app()->getLocale())->title }}</h5>
+                <ul class="footer-links">
+                    @foreach($section->children as $child)
+                        <li><a href="/{{ $child->getFullSlug() }}">{{ $child->translate(app()->getLocale())->title }}</a></li>
+                    @endforeach
+                </ul>
+            </div>
+            @endforeach
+        </div>
+        <div class="footer-bottom text-center mt-4">
+            <div class="social-icons">
+                @if(settings('facebook_url'))
+                    <a href="{{ settings('facebook_url') }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                @endif
+                @if(settings('instagram_url'))
+                    <a href="{{ settings('instagram_url') }}" target="_blank"><i class="fab fa-instagram"></i></a>
+                @endif
+                @if(settings('tiktok_url'))
+                    <a href="{{ settings('tiktok_url') }}" target="_blank"><i class="fab fa-tiktok"></i></a>
+                @endif
+            </div>
+            <p class="mt-3">{{ trans('website.all_rights_reserved') }}</p>
         </div>
     </div>
 </footer>

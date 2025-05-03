@@ -5,18 +5,18 @@
         <ul class="list-unstyled topnav-menu float-right mb-0">
             @foreach($locales as $locale => $url)
             <li class="leng">
-    
+
                 <a class="active" title="{{ trans('website.'.$locale) }}" href="@if(app()->getLocale() != $locale) {{$url}} @endif">
-    
+
                     <div class="language-text">
                         {{ trans('website.'.$locale) }}
                     </div>
-    
+
                 </a>
-    
+
             </li>
             @endforeach
-{{--     
+{{--
             <li class="dropdown notification-list">
                 <a class="nav-link dropdown-toggle  waves-effect" data-toggle="dropdown" title="notifications"  role="button" aria-haspopup="false" aria-expanded="false">
                     <i class="fe-bell noti-icon"></i>

@@ -1,19 +1,23 @@
-<section class="main_slider">
-    <div class="main-slider">
-        @if(isset($mainBanner))
-        @foreach ($mainBanner as $banner)
-        <div class="main-slide">
-            <a href="#">
-                <img src="{{ image($banner->translate(app()->getlocale())->image) }}" alt="img">
-                <div class="main-slider__text">
-                    <div class="container">
-                        <div>{{ $banner->translate(app()->getlocale())->title }}</div>
-                        <button>{!! $banner->translate(app()->getlocale())->button !!}</button>
+@if(isset($mainBanner) && $mainBanner->count() > 0)
+
+<section class="banner fade-in">
+    <div class="container text-center">
+            <h1 class="banner-title">{{ $mainBanner->first()->translate(app()->getLocale())->title }}</h1>
+
+        <div class="banner-images d-flex justify-content-center flex-wrap position-relative">
+            <button class="btn btn-danger banner-left-button slide-in-left" data-bs-toggle="modal" data-bs-target="#surrogateModal">{{ settings('banner_surrogate_button') }}</button>
+            @if(isset($mainBanner) && $mainBanner->count() > 0)
+                @foreach($mainBanner->first()->files as $file)
+
+                    <div class="banner-image slide-in-top">
+                        <a href="{{ asset('uploads/img/' . $file->file) }}" data-fancybox="banner-gallery" data-caption="Banner Image">
+                            <img src="{{ asset('uploads/img/' . $file->file) }}" alt="Banner Image" class="img-fluid">
+                        </a>
                     </div>
-                </div>
-            </a>
+                @endforeach
+            @endif
+            <button class="btn btn-primary banner-right-button slide-in-right" data-bs-toggle="modal" data-bs-target="#parentModal">{{ settings('banner_parent_button') }}</button>
         </div>
-        @endforeach
-        @endif
     </div>
 </section>
+@endif

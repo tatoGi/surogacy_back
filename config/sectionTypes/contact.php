@@ -24,6 +24,13 @@ return [
                 'min' => '3',
 
             ],
+            'desc' => [
+                'type' => 'textarea',
+                'error_msg' => 'title_is_required',
+                'required' => 'required',
+                'max' => '100',
+                'min' => '3',
+            ],
             'adress' => [
                 'type' => 'text',
                 'error_msg' => 'title_is_required',

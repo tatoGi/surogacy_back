@@ -15,6 +15,9 @@
     <link href="{{ asset('admin/css/admin.css')}}" rel="stylesheet" type="text/css" />
 
     <link href="{{ asset('admin/css/style.css')}}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/45.0.0/ckeditor5.css" />
+
+    {!! ToastMagic::styles() !!}
 
     @stack('styles')
 </head>

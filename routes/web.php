@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use UniSharp\LaravelFilemanager\Lfm;
+use App\Http\Controllers\CompanyAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,11 @@ Route::middleware(['auth.check'])->group(function () {
 
     Route::middleware('isSuperuser')->group(function () {
         Route::get('/admin', [AdminController::class, 'index'])->name('dashboard');
+
+        // Form Submissions Routes
+        Route::get('/admin/form-submissions', [FormSubmissionController::class, 'index'])->name('admin.form-submissions.index');
+        Route::get('/admin/form-submissions/{submission}', [FormSubmissionController::class, 'show'])->name('admin.form-submissions.show');
+        Route::delete('/admin/form-submissions/{submission}', [FormSubmissionController::class, 'destroy'])->name('admin.form-submissions.destroy');
 
         // Admin\UploadFilesController
         Route::post('/admin/upload/image', [UploadFilesController::class, 'uploadImage'])->name('image.upload');
@@ -124,12 +130,54 @@ Route::middleware(['auth.check'])->group(function () {
         Route::post('/admin/check-slug', [SectionController::class, 'CheckSlug']);
         Route::post('/admin/check-slug-banner', [BannerController::class, 'CheckSlug']);
         Route::delete('/banners/{id}/delete-image', [BannerController::class, 'deleteImage']);
+
+        // Company Routes
+        Route::prefix('admin')->group(function () {
+            Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies.index');
+            Route::get('/companies/create', [CompanyController::class, 'create'])->name('admin.companies.create');
+            Route::post('/companies', [CompanyController::class, 'store'])->name('admin.companies.store');
+            Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('admin.companies.edit');
+            Route::post('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
+            Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
+        });
+
+        // Surrogate People Routes
+        Route::prefix('admin')->group(function () {
+            Route::get('/surrogations', [SurrogatePeopleController::class, 'index'])->name('admin.surrogations.index');
+            Route::get('/surrogations/create', [SurrogatePeopleController::class, 'create'])->name('admin.surrogations.create');
+            Route::post('/surrogations', [SurrogatePeopleController::class, 'store'])->name('admin.surrogations.store');
+            Route::get('/surrogations/{surrogatePeople}/edit', [SurrogatePeopleController::class, 'edit'])->name('admin.surrogations.edit');
+            Route::put('/surrogations/{surrogatePeople}', [SurrogatePeopleController::class, 'update'])->name('admin.surrogations.update');
+            Route::delete('/surrogations/{surrogatePeople}', [SurrogatePeopleController::class, 'destroy'])->name('admin.surrogations.destroy');
+            Route::patch('/surrogations/{surrogatePeople}/toggle-status', [SurrogatePeopleController::class, 'toggleStatus'])->name('admin.surrogate-people.toggle-status');
+        });
+
+        // Favorites Routes
+        Route::get('/admin/favorites', [FavoriteController::class, 'index'])->name('admin.favorites.index');
+        Route::get('/admin/favorites/{company}', [FavoriteController::class, 'show'])->name('admin.favorites.show');
     });
 });
+Route::get('/company/login', [CompanyAuthController::class, 'showLoginForm'])->name('company.login');
+Route::post('/company/login', [CompanyAuthController::class, 'login']);
+Route::post('/company/logout', [CompanyAuthController::class, 'logout'])->name('company.logout');
 
+// Protected Company Routes
+Route::middleware(['company'])->group(function () {
+    Route::get('/company/profile', [CompanyAuthController::class, 'profile'])->name('company.profile');
+    Route::post('/surrogate-people/{id}/toggle-favorite', [PagesController::class, 'toggleFavorite'])->name('surrogate.toggle-favorite');
+});
 Route::post('/submission', [NotificationController::class, 'submission'])->name('submission');
 Route::post('/subscribe', [NotificationController::class, 'subscribe'])->name('subscribe');
 Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::any('/', [HomePageController::class, 'homePage']);
 Route::get('/contact{model}', [PagesController::class, 'contact'])->name('contact');
+
+// Form Submission Routes
+Route::post('/submit-surrogate-form', [PagesController::class, 'submitSurrogateForm'])->name('submit.surrogate.form');
+Route::post('/submit-parent-form', [PagesController::class, 'submitParentForm'])->name('submit.parent.form');
+
 Route::any('/{all}', [RoutesController::class, 'index'])->where('all', '.*');
+
+
+
+

@@ -8,7 +8,28 @@
 <div class="row">
     <div class="col-xl-12">
         <div class="card-box">
-          
+            @if (session('error'))
+                <div class="alert alert-danger" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div class="alert alert-success" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <h4 class="header-title mt-0 mb-3">{{ trans('admin.edit_banner') }}</h4>
             {!! Form::model($post = $banner, ['route' => ['banner.update', app()->getLocale(), $banner->id], "enctype" => "multipart/form-data"]) !!}
                 @include('admin.banners.form')
@@ -51,8 +72,8 @@
     const $input = $(this);
     const locale = $input.data('locale');
     const slug = $input.val();
-    const id = $input.data('id') || null; 
-    
+    const id = $input.data('id') || null;
+
     var token = $('meta[name="csrf-token"]').attr('content');
     $.ajax({
         type: 'POST',
@@ -61,7 +82,7 @@
         success: function(data) {
             console.log('ok')
             $input.parent().find('.print-error-msg').html('').css('color', '');
-            const btn = $('#banner-button'); 
+            const btn = $('#banner-button');
             btn.css('pointer-events', 'initial');
         },
         error: function(data) {

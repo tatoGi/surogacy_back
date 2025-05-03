@@ -132,12 +132,12 @@ class Section extends Model
 
     public function post()
     {
-
-        return Post::where('section_id', $this->id)->with('submissions')->whereHas('translations', function ($query) {
-          $query->where('locale', app()->getLocale());
-          $query->whereActive(true)->whereLocale(app()->getLocale());
-        })->first();
-
+        return $this->hasOne(Post::class, 'section_id', 'id')
+            ->with('submissions')
+            ->whereHas('translations', function ($query) {
+                $query->where('locale', app()->getLocale());
+                $query->whereActive(true)->whereLocale(app()->getLocale());
+            });
     }
 
      /**

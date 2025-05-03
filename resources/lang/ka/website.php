@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return [
 	"en" => "EN",
@@ -13,7 +13,7 @@ return [
 	"home" => "მთავარი",
 	"MESSAGE" => "შეტყობინება",
 	"Mail" => "ელ-ფოსტა",
-	"Registration_banner_text" => "რეგისტრაციის ბანერის ტექტი",
+	"Registration_banner_text" => "რეგისტრაციის ბანერის ტექსტი",
 	"CTA_Button" => "სრულად",
 	"Phone" => "ტელეფონი",
 	"Footer_links" => "Footer links",
@@ -22,7 +22,7 @@ return [
 	"quick_links" => "სწრაფი ლინკები",
 	"contact_information" => "საკონტაქტო ინფორმაცია",
 	"follow_on" => "გამოგვყევით",
-	"text" => "ტექტსტი",
+	"text" => "ტექსტი",
 	"send" => "გაგზავნა",
 	"info" => "ინფორმაცია",
 	"full_name" => "სახელი",
@@ -43,7 +43,36 @@ return [
 	"Previous" => "უკან",
 	"showroom" => "შოურუმი",
 	"see_more" => "ვრცლად",
-	"Our" => "ჩვენი,",
-	"products" => "პროდუქცია"
-	
+	"Our" => "ჩვენი",
+	"products" => "პროდუქცია",
+	"Surrogate_People" => "სუროგატი პირები",
+	"Age" => "ასაკი",
+	"Height" => "სიმაღლე",
+	"Weight" => "წონა",
+	"Blood_Type" => "სისხლის ჯგუფი",
+	"Nationality" => "ეროვნება",
+	"Hair_Color" => "თმის ფერი",
+	"Eye_Color" => "თვალის ფერი",
+	"Skin_Complexion" => "კანის ტონი",
+	"Education" => "განათლება",
+	"Marital_Status" => "ოჯახური მდგომარეობა",
+	"Race" => "რასა",
+	"Donation_Experience" => "დონაციის გამოცდილება",
+	"View_Details" => "დეტალების ნახვა",
+	"No_Surrogate_People_Found" => "სუროგატი პირები ვერ მოიძებნა",
+	"Years" => "წელი",
+	"Find_Your_Perfect_Match" => "იპოვეთ თქვენი იდეალური შესაბამისობა",
+	"Try_Adjusting_Your_Search" => "სცადეთ ძიების კრიტერიუმების შეცვლა",
+	"Favorite_Surrogate_People" => "რჩეული სუროგატი პირები",
+	"Personal_Info" => "პირადი ინფორმაცია",
+	"Name" => "სახელი",
+	"Surname" => "გვარი",
+	"Physical_Info" => "ფიზიკური ინფორმაცია",
+	"Appearance" => "გარეგნობა",
+	"Education_Experience" => "განათლება და გამოცდილება",
+	"No_favorites_yet" => "რჩეულები ჯერ არ არის",
+	"Start_adding_favorites" => "დაიწყეთ სუროგატი პირების დამატება რჩეულებში",
+	"Browse_Surrogate_People" => "სუროგატი პირების ნახვა",
+	"first_name" => "სახელი",
+	"surname" => "გვარი"
 ];

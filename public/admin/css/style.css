@@ -19,7 +19,6 @@
 }
 .emailers-form textarea:focus-visible{
 	outline: none;
-
 }
 .emailers-form button{
 	float: right;
@@ -69,5 +68,100 @@
 .language-text:hover{
     background: #409FC9;
     color: #F7F7F7;
+}
+
+/* Image Upload Styles */
+.image-preview {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin: 5px;
+    border-radius: 4px;
+}
+
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.image-wrapper {
+    position: relative;
+    display: inline-block;
+    margin: 5px;
+}
+
+.remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.remove-image:hover {
+    background: rgba(255, 0, 0, 0.1);
+}
+
+.existing-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.existing-image {
+    position: relative;
+    display: inline-block;
+    margin: 5px;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.existing-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.existing-image .remove-image {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    padding: 3px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1;
+}
+
+.existing-image .remove-image:hover {
+    background: rgba(255, 0, 0, 0.1);
+}
+
+.existing-image .delete-image-input {
+    display: none;
 }
 

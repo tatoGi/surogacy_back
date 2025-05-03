@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return [
 	"en" => "EN",
@@ -44,5 +44,35 @@ return [
 	"showroom" => "ShowRoom",
 	"Our" => "Our",
 	"see_more" => "See More",
-	"products" => "PRODUCTS"
+	"products" => "PRODUCTS",
+	"Years" => "Years",
+	"Find_Your_Perfect_Match" => "Find Your Perfect Match",
+	"Try_Adjusting_Your_Search" => "Try adjusting your search criteria",
+	"Favorite_Surrogate_People" => "Favorite Surrogate People",
+	"Personal_Info" => "Personal Information",
+	"Name" => "Name",
+	"Surname" => "Surname",
+	"Physical_Info" => "Physical Information",
+	"Height" => "Height",
+	"Weight" => "Weight",
+	"Blood_Type" => "Blood Type",
+	"Appearance" => "Appearance",
+	"Nationality" => "Nationality",
+	"Race" => "Race",
+	"Hair_Color" => "Hair Color",
+	"Eye_Color" => "Eye Color",
+	"Skin_Complexion" => "Skin Complexion",
+	"Education_Experience" => "Education & Experience",
+	"Education" => "Education",
+	"Donation_Experience" => "Donation Experience",
+	"View_Details" => "View Details",
+	"No_favorites_yet" => "No favorites yet",
+	"Start_adding_favorites" => "Start adding surrogate people to your favorites",
+	"Browse_Surrogate_People" => "Browse Surrogate People",
+	"Marital_Status" => "Marital Status",
+	"Surrogate_People" => "Surrogate People",
+	"No_Surrogate_People_Found" => "No Surrogate People Found",
+	"first_name" => "First Name",
+	"surname" => "Surname",
+	"Age" => "Age"
 ];

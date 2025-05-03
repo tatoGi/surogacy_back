@@ -1,78 +1,221 @@
-  <!-- Top Header with CTA Buttons -->
-  <div class="top-header fade-in">
+<div class="top-header fade-in">
     <div class="container d-flex justify-content-between align-items-center">
         <div class="header-buttons">
-            <button class="btn btn-outline-danger rounded-pill me-2">APPLY AS A EGG DONOR</button>
-            <button class="btn btn-outline-danger rounded-pill">GET STARTED AS A PARENT</button>
+            <button class="btn btn-outline-danger rounded-pill me-2">{{ settings('header_get_started_button') }}</button>
+            <button class="btn btn-outline-danger rounded-pill">{{ settings('header_contact_button') }}</button>
         </div>
         <div class="d-flex align-items-center">
             <div class="social-icons me-4">
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-tiktok"></i></a>
+                @if (settings('facebook') != '')
+                    <a href="{{ settings('facebook') }}" target="blank">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                @endif
+                @if (settings('twitter') != '')
+                    <a href="{{ settings('twitter') }}" target="blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                @endif
+                @if (settings('instagram') != '')
+                    <a href="{{ settings('instagram') }}" target="blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                @endif
             </div>
             <div class="language-selector">
                 <div class="dropdown">
                     <button class="btn btn-outline-secondary rounded-pill dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        ENGLISH
+                        @if(app()->getLocale() == 'ka')
+                            ქართული
+                        @else
+                            ENGLISH
+                        @endif
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                        <li><a class="dropdown-item" href="#">ENGLISH</a></li>
-                        <li><a class="dropdown-item" href="#">GEORGIAN</a></li>
+                        @foreach (config('app.locales') as $k => $value)
+                            <li><a class="dropdown-item" href="@if (isset($language_slugs) && is_array($language_slugs) && isset($language_slugs[$value])) {{ asset($language_slugs[$value]) }} @else {{ $k }} @endif">{{ __('website.' . $value) }}</a></li>
+                        @endforeach
                     </ul>
                 </div>
+            </div>
+
+            @auth('company')
+                <div class="company-menu ms-3">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary rounded-pill dropdown-toggle" type="button" id="companyDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ Auth::guard('company')->user()->name }}
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="companyDropdown">
+                            <li><a class="dropdown-item" href="/{{ app()->getLocale() }}/company/profile">{{ __('admin.Profile') }}</a></li>
+                            <li>
+                                <form action="/{{ app()->getLocale() }}/company/logout" method="POST" class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="redirect" value="/{{ app()->getLocale() }}">
+                                    <button type="submit" class="dropdown-item">{{ __('admin.Logout') }}</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            @else
+                <div class="company-auth ms-3">
+                    <button type="button" class="btn btn-outline-primary rounded-pill me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        {{ __('admin.Login') }}
+                    </button>
+                </div>
+            @endauth
+        </div>
+    </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">{{ __('admin.Company_Login') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/{{ app()->getLocale() }}/company/login">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">{{ __('admin.email') }}</label>
+                        <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                        @error('email')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">{{ __('admin.password') }}</label>
+                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                        @error('password')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="remember">
+                            {{ __('admin.Remember Me') }}
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            {{ __('admin.Login') }}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Main Header with Navigation -->
 <header class="main-header fade-in">
-    <div class="container d-flex align-items-center justify-content-between">
+    <div class="container d-flex align-items-center justify-content-between position-relative">
         <div class="logo">
-            <a href="index.html">
-                <img src="./assets/img/logo.jpg" alt="Surrogate First Logo" class="img-fluid" style="height: 80px;">
+            <a href="{{ URL::to('/') }}/{{ app()->getLocale() }}">
+                @if(settings('header_logo'))
+                    <img src="{{ settings('header_logo')['url'] }}" alt="Surrogate First Logo" class="img-fluid" style="height: 80px;">
+                @endif
             </a>
         </div>
+
+        <button class="burger-menu d-lg-none" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <nav class="navigation">
             <ul class="nav">
-                <li class="nav-item menu-item-has-children">
-                    <a class="nav-link" href="surrogates.html">For Surrogates <span>▼</span></a>
-                    <ul class="sub-menu">
-                        <li class="menu-item"><a href="surrogates/introduction.html">Introduction to becoming a surrogate</a></li>
-                        <li class="menu-item"><a href="surrogates/how-to-become.html">How to Become a Surrogate</a></li>
-                        <li class="menu-item"><a href="surrogates/qualify.html">Do I qualify?</a></li>
-                        <li class="menu-item"><a href="surrogates/compensation.html">How will I be Compensated?</a></li>
-                        <li class="menu-item"><a href="surrogates/wellness.html">SurrogateFirst Wellness Program</a></li>
-                        <li class="menu-item"><a href="surrogates/postpartum.html">SurrogateFirst Postpartum Program</a></li>
-                        <li class="menu-item"><a href="surrogates/why-us.html">Why work with SurrogateFirst?</a></li>
-                        <li class="menu-item"><a href="surrogates/faq.html">The Surrogates' Academy – FAQ</a></li>
-                        <li class="menu-item"><a href="surrogates/repeat.html">Repeat Surrogates</a></li>
-                        <li class="menu-item"><a href="surrogates/apply.html">Start Your Application Now</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item menu-item-has-children">
-                    <a class="nav-link" href="intended-parents.html">For Intended Parents <span>▼</span></a>
-                    <ul class="sub-menu">
-                        <li class="menu-item"><a href="intended-parents/overview.html">For Intended Parents</a></li>
-                        <li class="menu-item"><a href="intended-parents/process.html">What's the process of surrogacy?</a></li>
-                        <li class="menu-item"><a href="intended-parents/why-us.html">Why work with SurrogateFirst?</a></li>
-                        <li class="menu-item"><a href="intended-parents/cost.html">How much does surrogacy cost?</a></li>
-                        <li class="menu-item menu-item-has-children">
-                            <a href="intended-parents/faq.html">The Parents' Academy – FAQ <span>▼</span></a>
-                            <ul class="sub-menu">
-                                <li class="menu-item"><a href="intended-parents/law-map.html">US Surrogacy Law Map by State</a></li>
-                                <li class="menu-item"><a href="intended-parents/resources.html">Resources – Partners – Associations</a></li>
-                                <li class="menu-item"><a href="egg-donor.html">Need an Egg Donor?</a></li>
-                            </ul>
+                @foreach($sections as $section)
+                    @if($section->type_id != 7 || auth()->guard('company')->check())
+                        <li class="nav-item {{ $section->children->count() > 0 ? 'menu-item-has-children' : '' }}">
+                            <a class="nav-link" href="/{{ $section->getFullSlug() }}">
+                                {{ $section->translate(app()->getLocale())->title }}
+                                @if($section->children->count() > 0)
+                                    <span>▼</span>
+                                @endif
+                            </a>
+                            @if($section->children->count() > 0)
+                                <ul class="sub-menu">
+                                    @foreach($section->children as $child)
+                                        <li class="menu-item">
+                                            <a href="/{{ $child->getFullSlug() }}">
+                                                {{ $child->translate(app()->getLocale())->title }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
                         </li>
-                        <li class="menu-item"><a href="intended-parents/start.html">Start the process</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item"><a class="nav-link" href="learning.html">Learning Center</a></li>
-                <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
+                    @endif
+                @endforeach
             </ul>
+
         </nav>
+        <div class="header-search">
+            <form action="{{ route('search', app()->getLocale()) }}" method="GET" class="search-form">
+                <input type="text" name="q" placeholder="Search..." class="search-input">
+                <button type="submit" class="search-button">
+                    <span class="icon-Group-9991"></span>
+                </button>
+            </form>
+        </div>
     </div>
 </header>
+
+<section class="burger-menu">
+    <div class="burger-div">
+        <div class="search">
+            <input type="text" placeholder="Search">
+            <button> <span class="icon-Group-9991"></span></button>
+        </div>
+        <div class="burger-nav">
+            @foreach($sections as $section)
+                <div class="burger-nav_cont @if(isset($language_slugs) && is_array($language_slugs) && isset($language_slugs[app()->getLocale()]) && $language_slugs[app()->getLocale()] == $section->getFullSlug()) activediv @endif">
+                    <a class="burger-nav_link" href="/{{ $section->getFullSlug() }}">
+                        {{ $section->translate(app()->getLocale())->title }}
+                    </a>
+                    @if($section->children->count() > 0)
+                        <span id="burgerarrov" class="icon-material-symbols_arrow-back-ios-new-rounded burgerarrov"></span>
+                        <div class="burger-nav_submenu">
+                            <div>
+                                @foreach($section->children as $child)
+                                    <a href="/{{ $child->getFullSlug() }}">
+                                        {{ $child->translate(app()->getLocale())->title }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
+        <div class="header1_div2">
+            @if (settings('facebook') != '')
+                <a href="{{ settings('facebook') }}" target="blank">
+                    <span class="icon-Path-171"></span>
+                </a>
+            @endif
+            @if (settings('twitter') != '')
+                <a href="{{ settings('twitter') }}" target="blank">
+                    <span class="icon-Path-172"></span>
+                </a>
+            @endif
+            @if (settings('instagram') != '')
+                <a href="{{ settings('instagram') }}" target="blank">
+                    <span class="icon-Path-173"></span>
+                </a>
+            @endif
+        </div>
+    </div>
+</section>

@@ -46,25 +46,52 @@ class NotificationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required',
+            'email' => 'required|email',
             'message' => 'required',
-
         ]);
-        if (isset($values['file']) && ($values['file'] != null)) {
-            $newfileName = uniqid().'.'.$values['file']->getClientOriginalExtension();
-            $orignalName = $values['file']->getClientoriginalname();
-            $values['file']->move(config('config.file_path'), $newfileName);
-            $values['file'] = '';
-            $values['file'] = $newfileName;
-            $values['filename'] = $orignalName;
 
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
-        $values['additional'] = getAdditional($values, config('submissionAttr.additional'));
-        $submission = Submission::create($values);
 
-        return redirect()->back()->with([
-            'message' => trans('website.submission_sent'),
-        ]);
+        try {
+            if (isset($values['file']) && ($values['file'] != null)) {
+                $newfileName = uniqid().'.'.$values['file']->getClientOriginalExtension();
+                $orignalName = $values['file']->getClientoriginalname();
+                $values['file']->move(config('config.file_path'), $newfileName);
+                $values['file'] = '';
+                $values['file'] = $newfileName;
+                $values['filename'] = $orignalName;
+            }
 
+            // Convert message to text for database
+            $values['text'] = $values['message'];
+            unset($values['message']);
+
+            $values['additional'] = getAdditional($values, config('submissionAttr.additional'));
+
+            // Get the contact page post ID
+            $contactPost = \App\Models\Post::join('sections', 'posts.section_id', '=', 'sections.id')
+                ->where('sections.type_id', 2)
+                ->select('posts.*')
+                ->first();
+
+            $values['post_id'] = $contactPost ? $contactPost->id : 1; // Fallback to 1 if no contact post found
+
+            $submission = Submission::create($values);
+
+            return response()->json([
+                'success' => true,
+                'message' => trans('website.submission_sent')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing your request. Please try again.'
+            ], 500);
+        }
     }
 }

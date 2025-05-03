@@ -22,7 +22,7 @@ class PostController extends Controller
     {
         $section = Section::where('id', $sec)->with('translations')->first();
 
-        if (isset($section->type) && in_array($section->type['type'], [1, 4, 2])) {
+        if (isset($section->type) && in_array($section->type['type'], [6, 2])) {
             $post = Post::where('section_id', $sec)->with(['translations', 'slugs'])->first();
             if (isset($post) && $post !== null) {
                 return Redirect::route('post.edit', [app()->getLocale(), $post->id]);
@@ -57,13 +57,16 @@ class PostController extends Controller
         $values['author_id'] = auth()->user()->id;
         $postFillable = (new Post)->getFillable();
         $postTransFillable = (new PostTranslation)->getFillable();
-        
-       
+
+
         $values['additional'] = getAdditional($values, array_diff(array_keys($section->fields['nonTrans']), $postFillable));
         foreach (config('app.locales') as $locale) {
             if (isset($values[$locale]['slug'])) {
                 $values[$locale]['slug'] = str_replace(' ', '-', $values[$locale]['slug']);
-                }
+            } else {
+                // If no slug is provided, use the title as the slug
+                $values[$locale]['slug'] = str_replace(' ', '-', $values[$locale]['title']);
+            }
 
             if (isset($values[$locale]['file']) && $values[$locale]['file'] != '') {
                 if ($values[$locale]['file']->getSize() > 2097152) {
@@ -87,12 +90,11 @@ class PostController extends Controller
                 $newimageName = uniqid().'.'.$values[$locale]['image']->getClientOriginalExtension();
                 $orignalName = $values[$locale]['image']->getClientoriginalname();
                 $values[$locale]['image']->move(config('config.image_path'), $newimageName);
-                $values[$locale]['image'] = '';
                 $values[$locale]['image'] = $newimageName;
                 $values[$locale]['imagename'] = $orignalName;
                 if (isset($values[$locale]['old_image'])) {
                     // Delete the old file if it exists
-                    Storage::delete(config('config.image_path').$values[$locale]['image_file']);
+                    Storage::delete(config('config.image_path').$values[$locale]['old_image']);
                 }
             }
 
@@ -118,7 +120,7 @@ class PostController extends Controller
                     $postFile = new PostFile;
                     $postFile->type = $key;
                     $postFile->file = $file;
-                   
+
                     $postFile->post_id = $post->id;
                     $postFile->save();
                 }
@@ -140,7 +142,6 @@ class PostController extends Controller
     public function update($id, Request $request)
     {
         $post = Post::where('id', $id)->with('translations', 'files')->first();
-
         $section = Section::where('id', $post->section_id)->with('translations')->first();
 
         // Delete existing slugs for the post
@@ -151,32 +152,49 @@ class PostController extends Controller
         $values['author_id'] = auth()->user()->id;
         $postFillable = (new Post)->getFillable();
         $postTransFillable = (new PostTranslation)->getFillable();
-       
-     
+
+        // Handle main image upload
+        if ($request->hasFile('thumb')) {
+            if ($request->file('thumb')->getSize() > 2097152) {
+                return redirect()->back()->with('error', 'File size is greater than 2MB.');
+            }
+
+            // Create thumb directory if it doesn't exist
+            $thumbPath = config('config.image_path') . 'thumb/';
+            if (!File::exists($thumbPath)) {
+                File::makeDirectory($thumbPath, 0755, true);
+            }
+
+            $newfileName = uniqid().'.'.$request->file('thumb')->getClientOriginalExtension();
+            $request->file('thumb')->move($thumbPath, $newfileName);
+            $values['thumb'] = $newfileName;
+
+            // Delete old thumb if exists
+            if ($post->thumb) {
+                Storage::delete($thumbPath . $post->thumb);
+            }
+        }
+
         // Get additional values for non-translatable fields
         $values['additional'] = getAdditional($values, array_diff(array_keys($section->fields['nonTrans']), $postFillable));
 
         foreach (config('app.locales') as $locale) {
-
-             if ($values[$locale]['slug'] != $post[$locale]->slug) {
-
+            if (isset($values[$locale]['slug']) && isset($post[$locale]->slug) && $values[$locale]['slug'] != $post[$locale]->slug) {
                 $values[$locale]['slug'] = str_replace(' ', '-', $values[$locale]['slug']);
+            }
 
-                }
             // Handle file upload for this language
             if (isset($values[$locale]['file']) && ($values[$locale]['file'] != '')) {
-                // Check if file size is greater than 2MB
                 if ($values[$locale]['file']->getSize() > 2097152) {
                     return redirect()->back()->with('error', 'File size is greater than 2MB.');
                 }
-
                 $newfileName = uniqid().'.'.$values[$locale]['file']->getClientOriginalExtension();
                 $values[$locale]['file']->move(config('config.file_path'), $newfileName);
                 $values[$locale]['file'] = $newfileName;
             } elseif (isset($values[$locale]['old_file'])) {
                 $values[$locale]['file'] = $values[$locale]['old_file'];
             } else {
-                $values[$locale]['file'] = $post[$locale]->file; // reuse existing file
+                $values[$locale]['file'] = $post[$locale]->file;
             }
 
             if (isset($values[$locale]['image']) && ($values[$locale]['image'] != '')) {
@@ -184,11 +202,21 @@ class PostController extends Controller
                     return redirect()->back()->with('error', 'File size is greater than 2MB.');
                 }
 
+                // Generate unique filename
                 $newfileName = uniqid().'.'.$values[$locale]['image']->getClientOriginalExtension();
                 $originalName = $values[$locale]['image']->getClientOriginalName();
+
+                // Move file to uploads directory
                 $values[$locale]['image']->move(config('config.image_path'), $newfileName);
+
+                // Save only the filename in the database
                 $values[$locale]['image'] = $newfileName;
                 $values[$locale]['imagename'] = $originalName;
+
+                // Delete old image if it exists
+                if (isset($values[$locale]['old_image']) && $values[$locale]['old_image']) {
+                    Storage::delete(config('config.image_path').$values[$locale]['old_image']);
+                }
             } elseif (isset($values[$locale]['old_image'])) {
                 $values[$locale]['image'] = $values[$locale]['old_image'];
             } else {
@@ -196,46 +224,47 @@ class PostController extends Controller
             }
 
             // Update slug for this language
-            $post->slugs()->updateOrCreate([
-                'locale' => $locale,
-            ], [
-                'fullSlug' => $locale.'/'.$post->translate($locale)->slug,
-            ]);
-                // Get additional values for translatable fields
+            if (isset($post->translate($locale)->slug)) {
+                $post->slugs()->updateOrCreate([
+                    'locale' => $locale,
+                ], [
+                    'fullSlug' => $locale.'/'.$post->translate($locale)->slug,
+                ]);
+            }
+
+            // Get additional values for translatable fields
             $values[$locale]['locale_additional'] = getAdditional($values[$locale], array_diff(array_keys($section->fields['trans']), $postTransFillable));
         }
 
         $allOldFiles = PostFile::where('post_id', $post->id)->get();
 
-                foreach ($allOldFiles as $key => $fil) {
-
-                    if (isset($values['old_file']) && count($values['old_file']) > 0) {
-                        if (! in_array($fil->id, array_keys($values['old_file']))) {
-                            $fil->delete();
-                        } else {
-                         
-                            $fil->save();
-
-                        }
-                    } else {
-                        $fil->delete();
-                    }
+        foreach ($allOldFiles as $key => $fil) {
+            if (isset($values['old_file']) && count($values['old_file']) > 0) {
+                if (!in_array($fil->id, array_keys($values['old_file']))) {
+                    $fil->delete();
+                } else {
+                    $fil->save();
                 }
+            } else {
+                $fil->delete();
+            }
+        }
 
-                if (isset($values['files']) && count($values['files']) > 0) {
-                    foreach ($values['files'] as $key => $files) {
-                        foreach ($files['file'] as $k => $file) {
-                            $postFile = new PostFile;
-                            $postFile->type = $key;
-                            $postFile->file = $file;
-                            $postFile->post_id = $post->id;
-                            $postFile->save();
-                        }
-                    }
+        if (isset($values['files']) && count($values['files']) > 0) {
+            foreach ($values['files'] as $key => $files) {
+                foreach ($files['file'] as $k => $file) {
+                    $postFile = new PostFile;
+                    $postFile->type = $key;
+                    $postFile->file = $file;
+                    $postFile->post_id = $post->id;
+                    $postFile->save();
                 }
+            }
+        }
+
         Post::find($post->id)->update($values);
 
-        return  redirect()->back();
+        return redirect()->back();
     }
 
     public function destroy($id)

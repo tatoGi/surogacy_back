@@ -24,20 +24,16 @@ class HomePageController extends Controller
             return view('website.home', [
                 'model' => $model,
                 'language_slugs' => $language_slugs,
-                'news' => $this->getNewsSection(),
-                'news_posts' => $this->getNewsPosts(),
+                'about_us' => $this->getAboutUsSection(),
                 'mainBanner' => $this->getMainBanner(),
-                'show_room' => $this->getShowroomSection(),
-                'product_posts' => $this->getProductPosts(),
-                'show_room_post' => $this->getShowroomPosts(),
-                'products' => $this->getProductsSection()
+                'contact_us' => $this->getContactUsSection(),
             ]);
         } catch (ModelNotFoundException $e) {
             return view('website.404');
         }
     }
 
-    private function getMainBanner(): Collection
+    private function getMainBanner()
     {
         return Banner::whereHas('translation', function ($q) {
             $q->where('active', 1)->whereLocale(app()->getLocale());
@@ -47,66 +43,26 @@ class HomePageController extends Controller
         ->get();
     }
 
-    private function getProductsSection(): ?Section
+    private function getAboutUsSection()
     {
-        return Section::where('type_id', 3)
+        return Section::where('type_id', 6)
             ->with('translation')
+            ->with(['post' => function($query) {
+                $query->with('files');
+            }])
             ->first();
     }
 
-    private function getProductPosts(): Collection
+    private function getContactUsSection()
     {
-        $products = $this->getProductsSection();
-        if (!$products) {
-            return new Collection();
-        }
-
-        return Post::where('section_id', $products->id)
-            ->whereHas('translations', function ($q) {
-                $q->where('active', 1);
-            })
-            ->get();
-    }
-
-    private function getShowroomSection(): ?Section
-    {
-        return Section::where('type_id', 8)
-            ->with('translations')
+        return Section::where('type_id', 2)
+            ->with('translation')
+            ->with(['post' => function($query) {
+                $query->with('files', 'translations');
+            }])
             ->first();
     }
 
-    private function getShowroomPosts(): Collection
-    {
-        $show_room = $this->getShowroomSection();
-        if (!$show_room) {
-            return new Collection();
-        }
 
-        return Post::where('section_id', $show_room->id)
-            ->whereHas('translations', function ($q) {
-                $q->where('active', 1);
-            })
-            ->get();
-    }
 
-    private function getNewsSection(): ?Section
-    {
-        return Section::where('type_id', 7)
-            ->with('translations')
-            ->first();
-    }
-
-    private function getNewsPosts(): Collection
-    {
-        $news = $this->getNewsSection();
-        if (!$news) {
-            return new Collection();
-        }
-
-        return Post::where('section_id', $news->id)
-            ->whereHas('translations', function ($q) {
-                $q->where('active', 1);
-            })
-            ->get();
-    }
 }

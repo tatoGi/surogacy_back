@@ -9,6 +9,7 @@ use App\Models\Slug;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class SectionController extends Controller
 {
@@ -42,48 +43,52 @@ class SectionController extends Controller
 
     public function store(Request $request)
     {
+        try {
+            $values = $request->all();
 
-        $values = $request->all();
-
-        if (isset($values['cover']) && ($values['cover'] != null)) {
-            if ($values['cover']->getSize() > 2097152) {
-                return redirect()->back()->with('error', 'File size is greater than 2MB.');
+            if (isset($values['cover']) && ($values['cover'] != null)) {
+                if ($values['cover']->getSize() > 2097152) {
+                    ToastMagic::error('File size is greater than 2MB.');
+                    return redirect()->back();
+                }
+                $name = time().'.'.$values['cover']->extension();
+                $values['cover']->move(config('config.image_path').config('config.thumb_path'), $name);
+                $values['cover'] = '';
+                $values['cover'] = $name;
             }
-            $name = time().'.'.$values['cover']->extension();
-            $values['cover']->move(config('config.image_path').config('config.thumb_path'), $name);
-            $values['cover'] = '';
-            $values['cover'] = $name;
+            $values['additional'] = getAdditional($values, config('sectionAttr.additional'));
 
-        }
-        $values['additional'] = getAdditional($values, config('sectionAttr.additional'));
+            foreach (config('app.locales') as $locale) {
+                if ($values[$locale]['slug'] != '') {
+                    $values[$locale]['slug'] = str_replace(' ', '-', $values[$locale]['slug']);
+                }
 
-        foreach (config('app.locales') as $locale) {
-            if ($values[$locale]['slug'] != '') {
-                $values[$locale]['slug'] = str_replace(' ', '-', $values[$locale]['slug']);
+                $fullslug[$locale] = $locale.'/'.$values[$locale]['slug'];
+
+                $values[$locale]['locale_additional'] = getAdditional($values[$locale], config('sectionAttr.translateable_additional'));
             }
-
-            $fullslug[$locale] = $locale.'/'.$values[$locale]['slug'];
-
-            $values[$locale]['locale_additional'] = getAdditional($values[$locale], config('sectionAttr.translateable_additional'));
-        }
-        $section = Section::create($values);
-        if (isset($values['menu_types']) && $values['menu_types'] != '') {
-            foreach ($values['menu_types'] as $type) {
-                MenuSection::create([
-                    'section_id' => $section->id,
-                    'menu_type_id' => $type,
+            $section = Section::create($values);
+            if (isset($values['menu_types']) && $values['menu_types'] != '') {
+                foreach ($values['menu_types'] as $type) {
+                    MenuSection::create([
+                        'section_id' => $section->id,
+                        'menu_type_id' => $type,
+                    ]);
+                }
+            }
+            foreach (config('app.locales') as $locale) {
+                $section->slugs()->create([
+                    'fullSlug' => $fullslug[$locale],
+                    'slugable_id' => $section->id,
+                    'locale' => $locale,
                 ]);
             }
+            ToastMagic::success(trans('admin.section_created_successfully'));
+            return Redirect::route('section.list', [app()->getLocale()]);
+        } catch (\Exception $e) {
+            ToastMagic::error(trans('admin.error_creating_section') . ' ' . $e->getMessage());
+            return redirect()->back();
         }
-        foreach (config('app.locales') as $locale) {
-            $section->slugs()->create([
-                'fullSlug' => $fullslug[$locale],
-                'slugable_id' => $section->id,
-                'locale' => $locale,
-            ]);
-        }
-
-        return Redirect::route('section.list', [app()->getLocale()]);
     }
 
     public function edit($id)
@@ -100,70 +105,80 @@ class SectionController extends Controller
 
     public function update($id, Request $request)
     {
+        try {
+            $values = $request->all();
 
-        $values = $request->all();
-
-        Validator::validate($values, [
-            'type_id' => 'required',
-        ]);
-        $section = Section::where('id', $id)->with('translations')->first();
-
-        MenuSection::where('section_id', $id)->delete();
-
-        Slug::where('slugable_id', $id)->delete();
-
-        if ($request->hasFile('cover')) {
-            if ($values['cover']->getSize() > 2097152) {
-                return redirect()->back()->with('error', 'File size is greater than 2MB.');
-            }
-            $name = time().'.'.$values['cover']->extension();
-            $values['cover']->move(config('config.image_path'), $name);
-            $values['cover'] = '';
-            $values['cover'] = $name;
-        }
-
-        $values['additional'] = getAdditional($values, config('sectionAttr.additional'));
-
-        foreach (config('app.locales') as $locale) {
-            if ($values[$locale]['slug'] != $section[$locale]->slug) {
-
-                $values[$locale]['slug'] = str_replace(' ', '-', $values[$locale]['slug']);
-            }
-            $section->slugs()->create([
-                'fullSlug' => $locale.'/'.$values[$locale]['slug'],
-                'slugable_id' => $id,
-                'locale' => $locale,
+            Validator::validate($values, [
+                'type_id' => 'required',
             ]);
+            $section = Section::where('id', $id)->with('translations')->first();
 
-            $values[$locale]['locale_additional'] = getAdditional($values[$locale], config('sectionAttr.translateable_additional'));
+            MenuSection::where('section_id', $id)->delete();
 
-        }
+            Slug::where('slugable_id', $id)->delete();
 
-        $section = Section::find($id)->update($values);
-
-        if (isset($values['menu_types']) && $values['menu_types'] !== null) {
-            foreach ($values['menu_types'] as $type) {
-                MenuSection::create([
-                    'section_id' => $id,
-                    'menu_type_id' => $type,
-                ]);
+            if ($request->hasFile('cover')) {
+                if ($values['cover']->getSize() > 2097152) {
+                    ToastMagic::error('File size is greater than 2MB.');
+                    return redirect()->back();
+                }
+                $name = time().'.'.$values['cover']->extension();
+                $values['cover']->move(config('config.image_path'), $name);
+                $values['cover'] = '';
+                $values['cover'] = $name;
             }
-        }
 
-        return  redirect()->back();
+            $values['additional'] = getAdditional($values, config('sectionAttr.additional'));
+
+            foreach (config('app.locales') as $locale) {
+                if ($values[$locale]['slug'] != $section[$locale]->slug) {
+                    $values[$locale]['slug'] = str_replace(' ', '-', $values[$locale]['slug']);
+                }
+                $section->slugs()->create([
+                    'fullSlug' => $locale.'/'.$values[$locale]['slug'],
+                    'slugable_id' => $id,
+                    'locale' => $locale,
+                ]);
+
+                $values[$locale]['locale_additional'] = getAdditional($values[$locale], config('sectionAttr.translateable_additional'));
+            }
+
+            $section = Section::find($id)->update($values);
+
+            if (isset($values['menu_types']) && $values['menu_types'] !== null) {
+                foreach ($values['menu_types'] as $type) {
+                    MenuSection::create([
+                        'section_id' => $id,
+                        'menu_type_id' => $type,
+                    ]);
+                }
+            }
+
+            ToastMagic::success(trans('admin.section_updated_successfully'));
+            return redirect()->back();
+        } catch (\Exception $e) {
+            ToastMagic::error(trans('admin.error_updating_section') . ' ' . $e->getMessage());
+            return redirect()->back();
+        }
     }
 
     public function destroy($id)
     {
-        $sec = Section::find($id)->with('translations')->first();
-        foreach (Section::find($id)->slugs()->get() as $slug) {
-            Slug::where('fullSlug', 'LIKE', $slug->fullSlug.'%')->delete();
+        try {
+            $sec = Section::find($id)->with('translations')->first();
+            foreach (Section::find($id)->slugs()->get() as $slug) {
+                Slug::where('fullSlug', 'LIKE', $slug->fullSlug.'%')->delete();
+            }
+
+            Section::find($id)->slugs()->delete();
+            Section::find($id)->delete();
+
+            ToastMagic::success(trans('admin.section_deleted_successfully'));
+            return Redirect::route('section.list', [app()->getLocale()]);
+        } catch (\Exception $e) {
+            ToastMagic::error(trans('admin.error_deleting_section') . ' ' . $e->getMessage());
+            return redirect()->back();
         }
-
-        Section::find($id)->slugs()->delete();
-        Section::find($id)->delete();
-
-        return Redirect::route('section.list', [app()->getLocale()]);
     }
 
     public function arrange(Request $request)
@@ -185,7 +200,7 @@ class SectionController extends Controller
 
         $User_Update = Section::where('id', $que)->update(['cover' => null]);
 
-        return response()->json(['success' => 'File Deleted']);
+        return response()->json(['success' => trans('admin.file_deleted')]);
     }
 
      public function CheckSlug(Request $request)
@@ -201,9 +216,9 @@ class SectionController extends Controller
 
         if (Slug::where('fullSlug', $fullSlug)->where('locale', $locale)->where('slugable_id', '!=', $id)->exists()) {
 
-            return response()->json(['error' => 'This slug already exists'], 401);
+            return response()->json(['error' => trans('admin.slug_already_exists')], 401);
         } else {
-            return response()->json(['message' => 'Slug is available'], 200);
+            return response()->json(['message' => trans('admin.slug_available')], 200);
         }
 
         return response()->json(['Slug' => $slug]);

@@ -172,6 +172,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Devrabiul\ToastMagic\ToastMagicServiceProvider::class,
 
         /*
          * Application Service Providers...

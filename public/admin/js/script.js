@@ -12,7 +12,7 @@ $("body").on("click", ".deletefile", function(){
     var elem = $(this).closest('.dfile');
     var que = $(this).data("id");
     var lang = $(this).data("lang");
-    
+
     var TOKEN = $(this).data("token");
    if (confirm("დოკუმენტის წაშლა!?")) {
         $.ajax({
@@ -26,7 +26,7 @@ $("body").on("click", ".deletefile", function(){
                 }
             },
         });
-       
+
         $(this).parents('.dfile').hide('slow');
     }
 });
@@ -38,30 +38,22 @@ function myFunction() {
 };
 $(document).ready(function() {
     $(document).on('click', 'button[name="save"]', function() {
-        var danj = $(".danger");
-        for (var i = 0; i < danj.length; i++) {
-            var cl3s = danj[i].classList;
-            cl3s.remove("danger");
-        }
+        $(".danger").removeClass("danger");
     });
-    $.listen('parsley:field:error', function(parsleyField) {
-        var ewes = $("input[name='" + parsleyField.$element.attr('name') + "']").closest('.tab-pane').attr('id');
-        var els = document.querySelectorAll("a[href='" + '#' + ewes + "']");
-        for (var i = 0; i < els.length; i++) {
-            var classes = els[i].classList;
-            classes.add("danger");
-        }
+    $('form').on('parsley:field:error', function(parsleyField) {
+        var fieldName = parsleyField.$element.attr('name');
+        var tabId = $("input[name='" + fieldName + "']").closest('.tab-pane').attr('id');
+        $("a[href='#" + tabId + "']").addClass('danger');
     });
     $("input").on("input", function() {
-if ($(this).val().length > 0) {
-    var ewes = $(this).closest('.tab-pane').attr('id');
-    var els = document.querySelectorAll("a[href='" + '#' + ewes + "']");
-    for (var i = 0; i < els.length; i++) {
-        var classes = els[i].classList;
-        classes.remove("danger");
-    }
-}
-});
+        if ($(this).val().length > 0) {
+            var tabId = $(this).closest('.tab-pane').attr('id');
+            $("a[href='#" + tabId + "']").removeClass('danger');
+        }
+    });
+    document.addEventListener('touchstart', function() {}, {passive: true});
+    document.addEventListener('touchmove', function() {}, {passive: true});
+    document.addEventListener('mousewheel', function() {}, {passive: true});
 });
 
 
